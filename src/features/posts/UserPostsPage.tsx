@@ -1,5 +1,7 @@
 import { useParams } from 'react-router'
 import { NotFound } from '../../app/pages/NotFound.tsx'
+import { ErrorMessage } from '../../shared/ui/ErrorMessage.tsx'
+import { Loading } from '../../shared/ui/Loading.tsx'
 import { useUsers } from '../users/useUsers.ts'
 import { PostList } from './PostList.tsx'
 import { useUserPosts } from './useUserPosts.ts'
@@ -21,7 +23,7 @@ export function UserPostsPage() {
 function UserPosts({ userId }: { userId: number }) {
   // Reuses the cached users query: no extra request for the user's name.
   const { data: users } = useUsers()
-  const { data: posts, isPending, isError } = useUserPosts(userId)
+  const { data: posts, isPending, isError, isFetching, refetch } = useUserPosts(userId)
 
   const user = users?.find((candidate) => candidate.id === userId)
 
@@ -30,8 +32,14 @@ function UserPosts({ userId }: { userId: number }) {
   return (
     <section className="user-posts" aria-labelledby="posts-heading">
       <h2 id="posts-heading">{user ? `Posts by ${user.name}` : 'Posts'}</h2>
-      {isPending && <p>Loading posts…</p>}
-      {isError && <p>Could not load posts.</p>}
+      {isPending && <Loading label="Loading posts…" />}
+      {isError && (
+        <ErrorMessage
+          message="We couldn't load this user's posts. Check your connection and try again."
+          onRetry={() => void refetch()}
+          isRetrying={isFetching}
+        />
+      )}
       {posts && <PostList posts={posts} />}
     </section>
   )
