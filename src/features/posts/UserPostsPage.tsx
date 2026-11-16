@@ -1,5 +1,7 @@
+import { useEffect, useRef, useState } from 'react'
 import { Link, useParams } from 'react-router'
 import { NotFound } from '../../app/pages/NotFound.tsx'
+import { Button } from '../../shared/ui/Button.tsx'
 import { ErrorMessage } from '../../shared/ui/ErrorMessage.tsx'
 import { Loading } from '../../shared/ui/Loading.tsx'
 import { useUsers } from '../users/useUsers.ts'
@@ -7,6 +9,9 @@ import { PostForm } from './PostForm.tsx'
 import { PostList } from './PostList.tsx'
 import { useCreatePost } from './useCreatePost.ts'
 import { useUserPosts } from './useUserPosts.ts'
+import type { PostFormValues } from './validatePost.ts'
+
+const NEW_POST_PANEL_ID = 'new-post-panel'
 
 function parseUserId(raw: string | undefined): number | null {
   if (!raw || !/^\d+$/.test(raw)) return null
@@ -27,10 +32,32 @@ function UserPosts({ userId }: { userId: number }) {
   const { data: users } = useUsers()
   const { data: posts, isPending, isError, isFetching, refetch } = useUserPosts(userId)
   const createPost = useCreatePost(userId)
+  const [isFormOpen, setIsFormOpen] = useState(false)
+  const toggleRef = useRef<HTMLButtonElement>(null)
+  const panelRef = useRef<HTMLDivElement>(null)
+
+  // Opening the form moves focus to its first field.
+  useEffect(() => {
+    if (isFormOpen) panelRef.current?.querySelector<HTMLElement>('input, textarea')?.focus()
+  }, [isFormOpen])
 
   const user = users?.find((candidate) => candidate.id === userId)
 
   if (users && !user) return <NotFound />
+
+  function toggleForm() {
+    // Hide the previous "published" message when the form is reopened.
+    if (!isFormOpen) createPost.reset()
+    setIsFormOpen((open) => !open)
+  }
+
+  async function handleSubmit(values: PostFormValues) {
+    // Rejects on failure: PostForm keeps the input and the panel stays open.
+    await createPost.mutateAsync(values)
+    setIsFormOpen(false)
+    // The submit button disappears with the form; keep focus in a sane place.
+    toggleRef.current?.focus()
+  }
 
   return (
     <section className="flex flex-col gap-5" aria-labelledby="posts-heading">
@@ -42,9 +69,21 @@ function UserPosts({ userId }: { userId: number }) {
       >
         ← Users
       </Link>
-      <h2 id="posts-heading" className="text-xl font-semibold">
-        {user ? `Posts by ${user.name}` : 'Posts'}
-      </h2>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h2 id="posts-heading" className="text-xl font-semibold">
+          {user ? `Posts by ${user.name}` : 'Posts'}
+        </h2>
+        {posts && (
+          <Button
+            ref={toggleRef}
+            onClick={toggleForm}
+            aria-expanded={isFormOpen}
+            aria-controls={NEW_POST_PANEL_ID}
+          >
+            New post
+          </Button>
+        )}
+      </div>
       {isPending && <Loading label="Loading posts…" />}
       {isError && (
         <ErrorMessage
@@ -55,15 +94,13 @@ function UserPosts({ userId }: { userId: number }) {
       )}
       {posts && (
         <>
-          <PostForm
-            onSubmit={async (values) => {
-              await createPost.mutateAsync(values)
-            }}
-            isSubmitting={createPost.isPending}
-          />
-          {createPost.isError && (
-            <ErrorMessage message="We couldn't publish the post. Your text is kept, please try again." />
-          )}
+          {/* Kept mounted (hidden) so aria-controls always points to a real element. */}
+          <div id={NEW_POST_PANEL_ID} ref={panelRef} hidden={!isFormOpen} className="flex flex-col gap-3">
+            <PostForm onSubmit={handleSubmit} isSubmitting={createPost.isPending} />
+            {createPost.isError && (
+              <ErrorMessage message="We couldn't publish the post. Your text is kept, please try again." />
+            )}
+          </div>
           {createPost.isSuccess && (
             <p className="text-success" role="status">
               Post published.
