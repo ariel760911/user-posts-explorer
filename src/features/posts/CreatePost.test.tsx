@@ -1,4 +1,5 @@
-import { screen, within } from '@testing-library/react'
+import { fireEvent, screen, within } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { http, HttpResponse } from 'msw'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { API_BASE_URL } from '../../api/httpClient.ts'
@@ -31,7 +32,14 @@ async function openNewPostForm() {
 }
 
 const newPostButton = () => screen.getByRole('button', { name: 'New post' })
-const newPostForm = () => screen.queryByRole('form', { name: 'New post' })
+const newPostDialog = () => screen.queryByRole('dialog', { name: 'New post' })
+
+const userEventClick = (element: HTMLElement) => userEvent.click(element)
+
+// jsdom does not turn Escape into the dialog "cancel" event; dispatch it directly.
+function pressEscapeOnDialog() {
+  fireEvent(newPostDialog() as HTMLElement, new Event('cancel', { cancelable: true }))
+}
 const titleField = () => screen.getByRole('textbox', { name: 'Title' })
 const textField = () => screen.getByRole('textbox', { name: 'Text' })
 const publishButton = () => screen.getByRole('button', { name: 'Publish post' })
@@ -40,33 +48,48 @@ const postTitles = () =>
     .getAllByRole('heading', { level: 3 })
     .map((heading) => heading.textContent)
 
-describe('New post toggle', () => {
-  it('shows the posts first, with the form closed', async () => {
+describe('New post modal', () => {
+  it('shows the posts first, with the modal closed', async () => {
     await openUserPosts()
 
     expect(newPostButton()).toHaveAttribute('aria-expanded', 'false')
-    expect(newPostForm()).not.toBeInTheDocument()
+    expect(newPostButton()).toHaveAttribute('aria-haspopup', 'dialog')
+    expect(newPostDialog()).not.toBeInTheDocument()
   })
 
-  it('opens and closes the form, pointing aria-controls at it', async () => {
+  it('opens a labelled modal with the form and focuses the first field', async () => {
     const { user } = await openUserPosts()
 
     await user.click(newPostButton())
 
     expect(newPostButton()).toHaveAttribute('aria-expanded', 'true')
-    expect(newPostForm()).toBeVisible()
+    expect(newPostDialog()).toBeVisible()
+    expect(newPostDialog()).toHaveAttribute('id', newPostButton().getAttribute('aria-controls'))
+    expect(within(newPostDialog() as HTMLElement).getByRole('form', { name: 'New post' })).toBeVisible()
     expect(titleField()).toHaveFocus()
-    const panelId = newPostButton().getAttribute('aria-controls')
-    expect(panelId).toBeTruthy()
-    expect(document.getElementById(panelId ?? '')).toContainElement(newPostForm())
-
-    await user.click(newPostButton())
-
-    expect(newPostButton()).toHaveAttribute('aria-expanded', 'false')
-    expect(newPostForm()).not.toBeInTheDocument()
   })
 
-  it('closes the form after publishing and shows the new post on top', async () => {
+  it.each([
+    ['the Cancel button', () => userEventClick(screen.getByRole('button', { name: 'Cancel' }))],
+    ['the × button', () => userEventClick(screen.getByRole('button', { name: 'Close' }))],
+    ['the Escape key', () => pressEscapeOnDialog()],
+  ])('closes with %s, returns focus and keeps the draft', async (_label, close) => {
+    const requests = recordPostRequests()
+    const { user } = await openNewPostForm()
+    await user.type(titleField(), 'Half-written idea')
+
+    await close()
+
+    expect(newPostDialog()).not.toBeInTheDocument()
+    expect(newPostButton()).toHaveAttribute('aria-expanded', 'false')
+    expect(newPostButton()).toHaveFocus()
+    expect(requests).toHaveLength(0)
+
+    await user.click(newPostButton())
+    expect(titleField()).toHaveValue('Half-written idea')
+  })
+
+  it('closes after publishing and shows the new post on top', async () => {
     recordPostRequests()
     const { user } = await openNewPostForm()
 
@@ -75,8 +98,7 @@ describe('New post toggle', () => {
     await user.click(publishButton())
 
     expect(await screen.findByRole('status')).toHaveTextContent('Post published.')
-    expect(newPostButton()).toHaveAttribute('aria-expanded', 'false')
-    expect(newPostForm()).not.toBeInTheDocument()
+    expect(newPostDialog()).not.toBeInTheDocument()
     expect(newPostButton()).toHaveFocus()
     expect(postTitles()[0]).toBe('Fresh postNot saved on server')
   })

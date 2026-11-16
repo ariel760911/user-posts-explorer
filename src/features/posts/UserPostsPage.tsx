@@ -4,6 +4,7 @@ import { NotFound } from '../../app/pages/NotFound.tsx'
 import { Button } from '../../shared/ui/Button.tsx'
 import { ErrorMessage } from '../../shared/ui/ErrorMessage.tsx'
 import { Loading } from '../../shared/ui/Loading.tsx'
+import { Modal } from '../../shared/ui/Modal.tsx'
 import { useUsers } from '../users/useUsers.ts'
 import { PostForm } from './PostForm.tsx'
 import { PostList } from './PostList.tsx'
@@ -11,7 +12,8 @@ import { useCreatePost } from './useCreatePost.ts'
 import { useUserPosts } from './useUserPosts.ts'
 import type { PostFormValues } from './validatePost.ts'
 
-const NEW_POST_PANEL_ID = 'new-post-panel'
+const NEW_POST_DIALOG_ID = 'new-post-dialog'
+const NEW_POST_TITLE_ID = 'new-post-title'
 
 function parseUserId(raw: string | undefined): number | null {
   if (!raw || !/^\d+$/.test(raw)) return null
@@ -33,8 +35,7 @@ function UserPosts({ userId }: { userId: number }) {
   const { data: posts, isPending, isError, isFetching, refetch } = useUserPosts(userId)
   const createPost = useCreatePost(userId)
   const [isFormOpen, setIsFormOpen] = useState(false)
-  const toggleRef = useRef<HTMLButtonElement>(null)
-  const panelRef = useRef<HTMLDivElement>(null)
+  const openerRef = useRef<HTMLButtonElement>(null)
   const headingRef = useRef<HTMLHeadingElement>(null)
 
   // Entering a user's detail moves focus to its heading, so screen reader and
@@ -43,27 +44,26 @@ function UserPosts({ userId }: { userId: number }) {
     headingRef.current?.focus()
   }, [])
 
-  // Opening the form moves focus to its first field.
-  useEffect(() => {
-    if (isFormOpen) panelRef.current?.querySelector<HTMLElement>('input, textarea')?.focus()
-  }, [isFormOpen])
-
   const user = users?.find((candidate) => candidate.id === userId)
 
   if (users && !user) return <NotFound />
 
-  function toggleForm() {
-    // Hide the previous "published" message when the form is reopened.
-    if (!isFormOpen) createPost.reset()
-    setIsFormOpen((open) => !open)
+  function openForm() {
+    // Hide the previous "published" message and any stale error.
+    createPost.reset()
+    setIsFormOpen(true)
+  }
+
+  function closeForm() {
+    setIsFormOpen(false)
+    // Return focus to the control that opened the modal.
+    openerRef.current?.focus()
   }
 
   async function handleSubmit(values: PostFormValues) {
-    // Rejects on failure: PostForm keeps the input and the panel stays open.
+    // Rejects on failure: PostForm keeps the input and the modal stays open.
     await createPost.mutateAsync(values)
-    setIsFormOpen(false)
-    // The submit button disappears with the form; keep focus in a sane place.
-    toggleRef.current?.focus()
+    closeForm()
   }
 
   return (
@@ -82,10 +82,11 @@ function UserPosts({ userId }: { userId: number }) {
         </h2>
         {posts && (
           <Button
-            ref={toggleRef}
-            onClick={toggleForm}
+            ref={openerRef}
+            onClick={openForm}
+            aria-haspopup="dialog"
             aria-expanded={isFormOpen}
-            aria-controls={NEW_POST_PANEL_ID}
+            aria-controls={NEW_POST_DIALOG_ID}
           >
             New post
           </Button>
@@ -101,13 +102,26 @@ function UserPosts({ userId }: { userId: number }) {
       )}
       {posts && (
         <>
-          {/* Kept mounted (hidden) so aria-controls always points to a real element. */}
-          <div id={NEW_POST_PANEL_ID} ref={panelRef} hidden={!isFormOpen} className="flex flex-col gap-3">
-            <PostForm onSubmit={handleSubmit} isSubmitting={createPost.isPending} />
-            {createPost.isError && (
-              <ErrorMessage message="We couldn't publish the post. Your text is kept, please try again." />
-            )}
-          </div>
+          {/* Always mounted: aria-controls stays valid and a draft survives closing. */}
+          <Modal
+            id={NEW_POST_DIALOG_ID}
+            title="New post"
+            titleId={NEW_POST_TITLE_ID}
+            open={isFormOpen}
+            onClose={closeForm}
+          >
+            <div className="flex flex-col gap-3">
+              {createPost.isError && (
+                <ErrorMessage message="We couldn't publish the post. Your text is kept, please try again." />
+              )}
+              <PostForm
+                labelledBy={NEW_POST_TITLE_ID}
+                onSubmit={handleSubmit}
+                onCancel={closeForm}
+                isSubmitting={createPost.isPending}
+              />
+            </div>
+          </Modal>
           {createPost.isSuccess && (
             <p className="text-success" role="status">
               Post published.

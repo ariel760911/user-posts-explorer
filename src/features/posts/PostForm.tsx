@@ -16,10 +16,14 @@ function RequiredMark() {
 interface PostFormProps {
   /** Receives trimmed values. Resolve to reset the form; reject to keep the input. */
   onSubmit: (values: PostFormValues) => Promise<void>
+  /** Renders a Cancel button when provided. */
+  onCancel?: () => void
   isSubmitting?: boolean
+  /** Id of the element that names the form (e.g. the modal title). */
+  labelledBy: string
 }
 
-export function PostForm({ onSubmit, isSubmitting = false }: PostFormProps) {
+export function PostForm({ onSubmit, onCancel, isSubmitting = false, labelledBy }: PostFormProps) {
   const [values, setValues] = useState<PostFormValues>(EMPTY_VALUES)
   const [errors, setErrors] = useState<PostFormErrors>({})
   // Errors show after the first submit attempt, then update while typing.
@@ -58,15 +62,7 @@ export function PostForm({ onSubmit, isSubmitting = false }: PostFormProps) {
   }
 
   return (
-    <form
-      className="grid gap-3.5 rounded-lg border border-line bg-surface p-4"
-      aria-labelledby="post-form-heading"
-      noValidate
-      onSubmit={handleSubmit}
-    >
-      <h3 id="post-form-heading" className="text-lg font-semibold">
-        New post
-      </h3>
+    <form className="grid gap-3.5" aria-labelledby={labelledBy} noValidate onSubmit={handleSubmit}>
       {/* The visual asterisk is aria-hidden; `required` conveys it to assistive tech. */}
       <p className="text-sm text-muted">
         Fields marked with <RequiredMark /> are required.
@@ -117,9 +113,16 @@ export function PostForm({ onSubmit, isSubmitting = false }: PostFormProps) {
         )}
       </div>
 
-      <Button type="submit" className="justify-self-start" disabled={isSubmitting}>
-        {isSubmitting ? 'Publishing…' : 'Publish post'}
-      </Button>
+      <div className="flex flex-wrap justify-end gap-2">
+        {onCancel && (
+          <Button variant="secondary" onClick={onCancel} disabled={isSubmitting}>
+            Cancel
+          </Button>
+        )}
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? 'Publishing…' : 'Publish post'}
+        </Button>
+      </div>
     </form>
   )
 }
