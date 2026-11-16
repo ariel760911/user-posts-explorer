@@ -3,7 +3,9 @@ import { NotFound } from '../../app/pages/NotFound.tsx'
 import { ErrorMessage } from '../../shared/ui/ErrorMessage.tsx'
 import { Loading } from '../../shared/ui/Loading.tsx'
 import { useUsers } from '../users/useUsers.ts'
+import { PostForm } from './PostForm.tsx'
 import { PostList } from './PostList.tsx'
+import { useCreatePost } from './useCreatePost.ts'
 import { useUserPosts } from './useUserPosts.ts'
 
 function parseUserId(raw: string | undefined): number | null {
@@ -24,6 +26,7 @@ function UserPosts({ userId }: { userId: number }) {
   // Reuses the cached users query: no extra request for the user's name.
   const { data: users } = useUsers()
   const { data: posts, isPending, isError, isFetching, refetch } = useUserPosts(userId)
+  const createPost = useCreatePost(userId)
 
   const user = users?.find((candidate) => candidate.id === userId)
 
@@ -40,7 +43,25 @@ function UserPosts({ userId }: { userId: number }) {
           isRetrying={isFetching}
         />
       )}
-      {posts && <PostList posts={posts} />}
+      {posts && (
+        <>
+          <PostForm
+            onSubmit={async (values) => {
+              await createPost.mutateAsync(values)
+            }}
+            isSubmitting={createPost.isPending}
+          />
+          {createPost.isError && (
+            <ErrorMessage message="We couldn't publish the post. Your text is kept, please try again." />
+          )}
+          {createPost.isSuccess && (
+            <p className="success-message" role="status">
+              Post published.
+            </p>
+          )}
+          <PostList posts={posts} />
+        </>
+      )}
     </section>
   )
 }

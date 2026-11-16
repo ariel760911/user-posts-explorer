@@ -1,7 +1,7 @@
-import type { Post } from '../../api/types.ts'
+import type { PostListItem } from './types.ts'
 
 interface PostListProps {
-  posts: Post[]
+  posts: PostListItem[]
 }
 
 export function PostList({ posts }: PostListProps) {
@@ -14,7 +14,14 @@ export function PostList({ posts }: PostListProps) {
       {posts.map((post) => (
         <li key={post.id} className="post-list__item">
           <article>
-            <h3>{post.title}</h3>
+            <h3>
+              {post.title}
+              {post.isLocal && (
+                <span className="badge" title="The demo API does not save posts; it is kept only in this session.">
+                  Not saved on server
+                </span>
+              )}
+            </h3>
             <p>{post.body}</p>
           </article>
         </li>
