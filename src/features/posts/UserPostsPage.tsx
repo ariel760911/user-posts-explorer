@@ -31,8 +31,14 @@ export function UserPostsPage() {
 
 function UserPosts({ userId }: { userId: number }) {
   // Reuses the cached users query: no extra request for the user's name.
-  const { data: users } = useUsers()
-  const { data: posts, isPending, isError, isFetching, refetch } = useUserPosts(userId)
+  const { data: users, isError: usersFailed } = useUsers()
+  const user = users?.find((candidate) => candidate.id === userId)
+  // Only fetch posts for a user that exists. If the users request failed we
+  // cannot tell, so fetch anyway rather than leave the detail stuck loading
+  // (on mobile the users error is not visible from this screen).
+  const { data: posts, isPending, isError, isFetching, refetch } = useUserPosts(userId, {
+    enabled: users ? user !== undefined : usersFailed,
+  })
   const createPost = useCreatePost(userId)
   const [isFormOpen, setIsFormOpen] = useState(false)
   const headingRef = useRef<HTMLHeadingElement>(null)
@@ -42,8 +48,6 @@ function UserPosts({ userId }: { userId: number }) {
   useEffect(() => {
     headingRef.current?.focus()
   }, [])
-
-  const user = users?.find((candidate) => candidate.id === userId)
 
   if (users && !user) return <NotFound />
 

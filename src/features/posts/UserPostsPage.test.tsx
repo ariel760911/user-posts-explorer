@@ -57,8 +57,24 @@ describe('User posts', () => {
   })
 
   it('shows the not-found page for an unknown user id', async () => {
+    let postsRequests = 0
+    server.events.on('request:start', ({ request }) => {
+      if (new URL(request.url).pathname === '/posts') postsRequests += 1
+    })
     renderWithProviders('/users/999')
 
-    expect(await screen.findByRole('heading', { name: 'Page not found' })).toBeInTheDocument()
+    const heading = await screen.findByRole('heading', { name: 'Page not found' })
+    // Focus moves to the not-found heading instead of being lost to <body>.
+    expect(heading).toHaveFocus()
+    // No posts are requested for a user that does not exist.
+    expect(postsRequests).toBe(0)
+  })
+
+  it('still loads posts when the users request fails', async () => {
+    server.use(http.get(`${API_BASE_URL}/users`, () => new HttpResponse(null, { status: 500 })))
+    renderWithProviders('/users/1')
+
+    expect(await screen.findByText('First post by Leanne')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Posts' })).toBeInTheDocument()
   })
 })
