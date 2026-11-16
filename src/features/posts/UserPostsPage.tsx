@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useParams } from 'react-router'
-import { NotFound } from '../../app/pages/NotFound.tsx'
+import { NotFound } from '../../shared/ui/NotFound.tsx'
 import { Button } from '../../shared/ui/Button.tsx'
 import { ErrorMessage } from '../../shared/ui/ErrorMessage.tsx'
 import { Loading } from '../../shared/ui/Loading.tsx'
