@@ -14,6 +14,7 @@ import type { PostFormValues } from './validatePost.ts'
 
 const NEW_POST_DIALOG_ID = 'new-post-dialog'
 const NEW_POST_TITLE_ID = 'new-post-title'
+export const SUCCESS_MESSAGE_MS = 4000
 
 function parseUserId(raw: string | undefined): number | null {
   if (!raw || !/^\d+$/.test(raw)) return null
@@ -48,6 +49,15 @@ function UserPosts({ userId }: { userId: number }) {
   useEffect(() => {
     headingRef.current?.focus()
   }, [])
+
+  // "Post published." is a transient confirmation: hide it after a few
+  // seconds (it is announced by role="status" as soon as it appears).
+  const { isSuccess: isPublished, reset: resetCreatePost } = createPost
+  useEffect(() => {
+    if (!isPublished) return
+    const timer = setTimeout(resetCreatePost, SUCCESS_MESSAGE_MS)
+    return () => clearTimeout(timer)
+  }, [isPublished, resetCreatePost])
 
   if (users && !user) return <NotFound />
 

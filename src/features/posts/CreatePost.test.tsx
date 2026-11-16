@@ -5,6 +5,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { API_BASE_URL } from '../../api/httpClient.ts'
 import { renderWithProviders } from '../../test/renderWithProviders.tsx'
 import { server } from '../../test/server.ts'
+import { SUCCESS_MESSAGE_MS } from './UserPostsPage.tsx'
 
 // Mirrors JSONPlaceholder (always id 101) and records what the app sends.
 function recordPostRequests() {
@@ -132,6 +133,29 @@ describe('New post modal', () => {
     expect(newPostDialog()).not.toBeInTheDocument()
     expect(newPostButton()).toHaveFocus()
     expect(postTitles()[0]).toBe('Fresh post')
+  })
+
+  it('hides the "Post published." confirmation after a few seconds', async () => {
+    // shouldAdvanceTime keeps real time flowing for MSW and user-event.
+    vi.useFakeTimers({ shouldAdvanceTime: true })
+    try {
+      recordPostRequests()
+      const { user } = await openNewPostForm()
+      await user.type(titleField(), 'Short-lived message')
+      await user.type(textField(), 'Body')
+      await user.click(publishButton())
+      expect(await screen.findByText('Post published.')).toBeInTheDocument()
+
+      act(() => vi.advanceTimersByTime(SUCCESS_MESSAGE_MS - 100))
+      expect(screen.getByText('Post published.')).toBeInTheDocument()
+
+      act(() => vi.advanceTimersByTime(200))
+      expect(screen.queryByText('Post published.')).not.toBeInTheDocument()
+      // The post itself stays in the list.
+      expect(postTitles()[0]).toBe('Short-lived message')
+    } finally {
+      vi.useRealTimers()
+    }
   })
 })
 
