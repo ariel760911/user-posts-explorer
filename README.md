@@ -78,12 +78,27 @@ Las dependencias van en una sola dirección: `app → features → shared/api`. 
 
 ## Con más tiempo
 
-- Persistir las publicaciones creadas (por ejemplo en `localStorage`) para que sobrevivan a una recarga.
-- Paginar o virtualizar si las listas crecieran.
-- Tests end-to-end con Playwright en navegadores reales y en mobile, para cubrir lo que jsdom no puede: trampa de foco del modal, buscador fijo al hacer scroll y bloqueo de scroll.
-- Auditoría de accesibilidad automatizada (axe) en CI y una pasada con lector de pantalla real.
-- Editar y borrar publicaciones con actualizaciones optimistas.
-- CI (GitHub Actions) con typecheck, lint, tests y build en cada PR.
+### Prioridad 1: cubrir lo que hoy no se valida en un navegador real
+
+- **Tests end-to-end con Playwright** en viewports de escritorio y móvil. El modal como hoja inferior, el bloqueo del scroll, el retorno real del foco y los bordes del backdrop hoy solo se validan con la simulación de jsdom o no tienen cobertura.
+- **Integración continua con GitHub Actions** que ejecute typecheck, lint, tests y build en cada pull request.
+- **Chequeos de accesibilidad automatizados con axe**. Habrían detectado el doble etiquetado del modal (el diálogo y el formulario se nombran con el mismo título) y ayudarían a cuidar las regiones `aria-live`.
+
+### Prioridad 2: robustez
+
+- Un **error boundary** o un `errorElement` en las rutas, para que un error de renderizado no deje la aplicación en blanco.
+- Usar `HttpError.status` para **no reintentar los errores 4xx**: hoy `retry: 1` se aplica a cualquier error.
+- Fijar **umbrales de cobertura** en Vitest ahora que la suite tiene 36 tests.
+
+### Segunda etapa
+
+- **Persistir los posts creados** en `localStorage` o con el persister de TanStack Query, para que sobrevivan a una recarga.
+- **Modo oscuro** aprovechando los tokens ya definidos en `@theme`, después de reemplazar los `bg-white` fijos.
+- Si entra en el alcance, **editar y borrar posts locales** con actualizaciones optimistas.
+
+### Lo que no se justifica a esta escala
+
+Paginación o virtualización, búsqueda en el servidor y una capa de puertos y adaptadores. Agregarían complejidad sin un beneficio concreto.
 
 ## Cómo se usó la IA
 
