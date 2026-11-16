@@ -3,6 +3,14 @@ import { hasErrors, validatePost, type PostFormErrors, type PostFormValues } fro
 
 const EMPTY_VALUES: PostFormValues = { title: '', body: '' }
 
+function RequiredMark() {
+  return (
+    <span className="required-mark" aria-hidden="true">
+      *
+    </span>
+  )
+}
+
 interface PostFormProps {
   /** Receives trimmed values. Resolve to reset the form; reject to keep the input. */
   onSubmit: (values: PostFormValues) => Promise<void>
@@ -50,9 +58,15 @@ export function PostForm({ onSubmit, isSubmitting = false }: PostFormProps) {
   return (
     <form className="post-form" aria-labelledby="post-form-heading" noValidate onSubmit={handleSubmit}>
       <h3 id="post-form-heading">New post</h3>
+      {/* The visual asterisk is aria-hidden; `required` conveys it to assistive tech. */}
+      <p className="form-hint">
+        Fields marked with <RequiredMark /> are required.
+      </p>
 
       <div className="form-field">
-        <label htmlFor="post-title">Title</label>
+        <label htmlFor="post-title">
+          Title <RequiredMark />
+        </label>
         <input
           ref={titleRef}
           id="post-title"
@@ -71,7 +85,9 @@ export function PostForm({ onSubmit, isSubmitting = false }: PostFormProps) {
       </div>
 
       <div className="form-field">
-        <label htmlFor="post-body">Text</label>
+        <label htmlFor="post-body">
+          Text <RequiredMark />
+        </label>
         <textarea
           ref={bodyRef}
           id="post-body"
