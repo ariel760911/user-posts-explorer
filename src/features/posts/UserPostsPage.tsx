@@ -1,4 +1,4 @@
-import { useParams } from 'react-router'
+import { Link, useParams } from 'react-router'
 import { NotFound } from '../../app/pages/NotFound.tsx'
 import { ErrorMessage } from '../../shared/ui/ErrorMessage.tsx'
 import { Loading } from '../../shared/ui/Loading.tsx'
@@ -34,6 +34,14 @@ function UserPosts({ userId }: { userId: number }) {
 
   return (
     <section className="flex flex-col gap-5" aria-labelledby="posts-heading">
+      {/* Mobile only: the user list is a separate screen there. */}
+      <Link
+        to="/"
+        aria-label="Back to users"
+        className="self-start text-accent underline hover:no-underline md:hidden"
+      >
+        ← Users
+      </Link>
       <h2 id="posts-heading" className="text-xl font-semibold">
         {user ? `Posts by ${user.name}` : 'Posts'}
       </h2>
