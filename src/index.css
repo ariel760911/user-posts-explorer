@@ -1,0 +1,25 @@
+@import 'tailwindcss';
+
+/* Design tokens: each --color-* becomes utilities like text-muted or border-line. */
+@theme {
+  --color-fg: #1f2328;
+  --color-muted: #59636e;
+  --color-surface: #f6f8fa;
+  --color-line: #d1d9e0;
+  --color-accent: #0969da;
+  --color-danger: #d1242f;
+  --color-danger-soft: #fff5f5;
+  --color-success: #1a7f37;
+  --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+@layer base {
+  body {
+    @apply bg-white font-sans leading-normal text-fg;
+  }
+
+  /* Lock background scroll while a modal dialog is open (notably on iOS). */
+  body:has(dialog[open]) {
+    overflow: hidden;
+  }
+}
