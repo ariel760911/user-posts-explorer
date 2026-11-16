@@ -6,7 +6,8 @@ interface UserListProps {
 }
 
 const linkClasses =
-  'flex flex-col px-3.5 py-2.5 hover:bg-surface ' +
+  // min-h-11 = 44px minimum touch target (items are already taller on desktop).
+  'flex min-h-11 flex-col justify-center px-3.5 py-2.5 hover:bg-surface ' +
   'focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-accent ' +
   'aria-[current=page]:bg-surface aria-[current=page]:font-semibold ' +
   'aria-[current=page]:shadow-[inset_3px_0_0_var(--color-accent)]'

@@ -35,6 +35,13 @@ function UserPosts({ userId }: { userId: number }) {
   const [isFormOpen, setIsFormOpen] = useState(false)
   const toggleRef = useRef<HTMLButtonElement>(null)
   const panelRef = useRef<HTMLDivElement>(null)
+  const headingRef = useRef<HTMLHeadingElement>(null)
+
+  // Entering a user's detail moves focus to its heading, so screen reader and
+  // keyboard users start from the new content (the component is keyed by user).
+  useEffect(() => {
+    headingRef.current?.focus()
+  }, [])
 
   // Opening the form moves focus to its first field.
   useEffect(() => {
@@ -65,12 +72,12 @@ function UserPosts({ userId }: { userId: number }) {
       <Link
         to="/"
         aria-label="Back to users"
-        className="self-start text-accent underline hover:no-underline md:hidden"
+        className="inline-flex min-h-11 items-center self-start text-accent underline hover:no-underline md:hidden"
       >
         ← Users
       </Link>
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 id="posts-heading" className="text-xl font-semibold">
+        <h2 id="posts-heading" ref={headingRef} tabIndex={-1} className="text-xl font-semibold outline-none">
           {user ? `Posts by ${user.name}` : 'Posts'}
         </h2>
         {posts && (

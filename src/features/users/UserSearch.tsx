@@ -7,7 +7,8 @@ interface UserSearchProps {
 
 export function UserSearch({ value, onChange }: UserSearchProps) {
   return (
-    <div className="mb-4 flex flex-col gap-1">
+    // Sticky on mobile so the search stays reachable while scrolling the list.
+    <div className="sticky top-0 z-10 mb-2 flex flex-col gap-1 bg-white py-2 md:static md:mb-4 md:py-0">
       <label htmlFor="user-search-input">Search by name</label>
       <input
         id="user-search-input"

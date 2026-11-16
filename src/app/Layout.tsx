@@ -1,4 +1,4 @@
-import { Outlet, useMatch } from 'react-router'
+import { Outlet, ScrollRestoration, useMatch } from 'react-router'
 import { UsersPanel } from '../features/users/UsersPanel.tsx'
 
 export function Layout() {
@@ -21,6 +21,8 @@ export function Layout() {
           <Outlet />
         </main>
       </div>
+      {/* New navigations start at the top; back/forward restore the position. */}
+      <ScrollRestoration />
     </div>
   )
 }
