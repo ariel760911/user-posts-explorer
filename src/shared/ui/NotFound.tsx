@@ -15,7 +15,11 @@ export function NotFound() {
       <h2 ref={headingRef} tabIndex={-1} className="mb-3 text-xl font-semibold text-fg outline-none">
         Page not found
       </h2>
-      <Link to="/" className="text-accent underline hover:no-underline">
+      {/* min-h-11 = 44px touch target on mobile, like the other controls. */}
+      <Link
+        to="/"
+        className="inline-flex min-h-11 items-center text-accent underline hover:no-underline md:min-h-0"
+      >
         Back to users
       </Link>
     </div>

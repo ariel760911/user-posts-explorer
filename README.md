@@ -9,7 +9,7 @@ Requisitos: Node `^20.19` o `>=22.12` (lo exige Vite 8) y npm.
 ```bash
 npm install
 npm run dev      # http://localhost:5173
-npm test         # 36 tests con Vitest + Testing Library
+npm test         # 37 tests con Vitest + Testing Library
 ```
 
 | Script | Qué hace |
@@ -88,7 +88,7 @@ Las dependencias van en una sola dirección: `app → features → shared/api`. 
 
 - Un **error boundary** o un `errorElement` en las rutas, para que un error de renderizado no deje la aplicación en blanco.
 - Usar `HttpError.status` para **no reintentar los errores 4xx**: hoy `retry: 1` se aplica a cualquier error.
-- Fijar **umbrales de cobertura** en Vitest ahora que la suite tiene 36 tests.
+- Fijar **umbrales de cobertura** en Vitest ahora que la suite tiene 37 tests.
 
 ### Segunda etapa
 

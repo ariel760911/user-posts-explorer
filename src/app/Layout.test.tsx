@@ -80,6 +80,13 @@ describe('Thumb-friendly details', () => {
     expect(screen.getByRole('link', { name: 'Back to users' })).toHaveClass('min-h-11')
   })
 
+  it('gives the not-found "Back to users" link a 44px touch target', async () => {
+    renderWithProviders('/users/abc')
+
+    await screen.findByRole('heading', { name: 'Page not found' })
+    expect(screen.getByRole('link', { name: 'Back to users' })).toHaveClass('min-h-11')
+  })
+
   it('keeps the user search sticky at the top on mobile only', async () => {
     renderWithProviders('/')
     const search = await screen.findByRole('searchbox', { name: 'Search by name' })
