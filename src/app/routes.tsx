@@ -1,4 +1,5 @@
 import type { RouteObject } from 'react-router'
+import { UserPostsPage } from '../features/posts/UserPostsPage.tsx'
 import { Layout } from './Layout.tsx'
 import { NotFound } from './pages/NotFound.tsx'
 import { SelectUserPrompt } from './pages/SelectUserPrompt.tsx'
@@ -10,6 +11,7 @@ export const routes: RouteObject[] = [
     element: <Layout />,
     children: [
       { index: true, element: <SelectUserPrompt /> },
+      { path: 'users/:userId', element: <UserPostsPage /> },
       { path: '*', element: <NotFound /> },
     ],
   },
