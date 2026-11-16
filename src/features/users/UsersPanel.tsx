@@ -12,6 +12,12 @@ export function UsersPanel() {
   const [query, setQuery] = useState('')
 
   const visibleUsers = users ? filterUsersByName(users, query) : []
+  const isSearching = users !== undefined && query.trim() !== ''
+  const resultsAnnouncement = !isSearching
+    ? ''
+    : visibleUsers.length === 0
+      ? 'No users found'
+      : `${visibleUsers.length} ${visibleUsers.length === 1 ? 'user' : 'users'} found`
 
   return (
     <section aria-labelledby="users-heading">
@@ -19,6 +25,10 @@ export function UsersPanel() {
         Users
       </h2>
       <UserSearch value={query} onChange={setQuery} />
+      {/* Always rendered so screen readers pick up changes; visually hidden. */}
+      <p aria-live="polite" className="sr-only" data-testid="search-results-announcement">
+        {resultsAnnouncement}
+      </p>
       {isPending && <Loading label="Loading users…" />}
       {isError && (
         <ErrorMessage

@@ -33,4 +33,24 @@ describe('Users search', () => {
 
     expect(userLinks()).toHaveLength(3)
   })
+
+  it('announces the number of results to screen readers', async () => {
+    const { user } = renderWithProviders('/')
+    await screen.findByRole('list', { name: 'Users' })
+    const search = screen.getByRole('searchbox', { name: 'Search by name' })
+    const announcement = screen.getByTestId('search-results-announcement')
+
+    expect(announcement).toHaveAttribute('aria-live', 'polite')
+    expect(announcement).toBeEmptyDOMElement()
+
+    await user.type(search, 'ervin')
+    expect(announcement).toHaveTextContent('1 user found')
+
+    await user.clear(search)
+    await user.type(search, 'e')
+    expect(announcement).toHaveTextContent('3 users found')
+
+    await user.type(search, 'zzz')
+    expect(announcement).toHaveTextContent('No users found')
+  })
 })
