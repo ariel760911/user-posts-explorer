@@ -1,3 +1,8 @@
+/* Preflight (Tailwind's reset) is enabled when styles migrate to utilities. */
+@layer theme, base, components, utilities;
+@import 'tailwindcss/theme.css' layer(theme);
+@import 'tailwindcss/utilities.css' layer(utilities);
+
 :root {
   --color-text: #1f2328;
   --color-muted: #59636e;
