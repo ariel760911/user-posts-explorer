@@ -17,4 +17,9 @@
   body {
     @apply bg-white font-sans leading-normal text-fg;
   }
+
+  /* Lock background scroll while a modal dialog is open (notably on iOS). */
+  body:has(dialog[open]) {
+    overflow: hidden;
+  }
 }

@@ -60,7 +60,13 @@ export function Modal({ id, title, titleId, open, onClose, children }: ModalProp
         if (pointerDownOnBackdropRef.current && event.target === event.currentTarget) onClose()
         pointerDownOnBackdropRef.current = false
       }}
-      className="m-auto w-[min(100%-2rem,36rem)] rounded-lg border border-line bg-white p-0 text-fg shadow-xl backdrop:bg-black/40"
+      // Mobile: bottom sheet (full width, anchored to the bottom, safe-area aware).
+      // md+: centered dialog.
+      className={
+        'mt-auto mb-0 max-h-[90dvh] w-full max-w-none overflow-y-auto rounded-t-xl border border-b-0 border-line ' +
+        'bg-white p-0 pb-[env(safe-area-inset-bottom)] text-fg shadow-xl backdrop:bg-black/40 ' +
+        'md:m-auto md:max-h-[85dvh] md:w-[min(100%-2rem,36rem)] md:rounded-lg md:border-b md:pb-0'
+      }
     >
       <div className="flex items-center justify-between gap-3 border-b border-line px-4 py-3">
         <h2 id={titleId} className="text-lg font-semibold">
