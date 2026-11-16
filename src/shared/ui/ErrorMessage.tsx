@@ -1,3 +1,5 @@
+import { Button } from './Button.tsx'
+
 interface ErrorMessageProps {
   message: string
   onRetry?: () => void
@@ -7,12 +9,12 @@ interface ErrorMessageProps {
 // role="alert" makes screen readers announce the error immediately.
 export function ErrorMessage({ message, onRetry, isRetrying = false }: ErrorMessageProps) {
   return (
-    <div className="error-message" role="alert">
+    <div className="rounded-lg border border-danger bg-danger-soft px-4 py-3 text-danger" role="alert">
       <p>{message}</p>
       {onRetry && (
-        <button type="button" onClick={onRetry} disabled={isRetrying}>
+        <Button className="mt-2" onClick={onRetry} disabled={isRetrying}>
           {isRetrying ? 'Retrying…' : 'Try again'}
-        </button>
+        </Button>
       )}
     </div>
   )

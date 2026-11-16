@@ -14,8 +14,10 @@ export function UsersPanel() {
   const visibleUsers = users ? filterUsersByName(users, query) : []
 
   return (
-    <section className="users-panel" aria-labelledby="users-heading">
-      <h2 id="users-heading">Users</h2>
+    <section aria-labelledby="users-heading">
+      <h2 id="users-heading" className="mb-3 text-xl font-semibold">
+        Users
+      </h2>
       <UserSearch value={query} onChange={setQuery} />
       {isPending && <Loading label="Loading users…" />}
       {isError && (
@@ -29,7 +31,7 @@ export function UsersPanel() {
         (visibleUsers.length > 0 ? (
           <UserList users={visibleUsers} />
         ) : (
-          <p className="empty-state">No users match “{query.trim()}”.</p>
+          <p className="text-muted">No users match “{query.trim()}”.</p>
         ))}
     </section>
   )

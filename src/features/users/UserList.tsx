@@ -5,15 +5,21 @@ interface UserListProps {
   users: User[]
 }
 
+const linkClasses =
+  'flex flex-col px-3.5 py-2.5 hover:bg-surface ' +
+  'focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-accent ' +
+  'aria-[current=page]:bg-surface aria-[current=page]:font-semibold ' +
+  'aria-[current=page]:shadow-[inset_3px_0_0_var(--color-accent)]'
+
 export function UserList({ users }: UserListProps) {
   return (
-    <ul className="user-list" aria-label="Users">
+    <ul className="divide-y divide-line overflow-hidden rounded-lg border border-line" aria-label="Users">
       {users.map((user) => (
         <li key={user.id}>
           {/* NavLink sets aria-current="page" on the selected user. */}
-          <NavLink to={`/users/${user.id}`} className="user-list__item">
-            <span className="user-list__name">{user.name}</span>
-            <span className="user-list__email">{user.email}</span>
+          <NavLink to={`/users/${user.id}`} className={linkClasses}>
+            <span>{user.name}</span>
+            <span className="text-sm font-normal text-muted">{user.email}</span>
           </NavLink>
         </li>
       ))}

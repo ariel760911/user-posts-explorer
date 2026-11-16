@@ -5,8 +5,11 @@ interface LoadingProps {
 // role="status" makes screen readers announce the loading message.
 export function Loading({ label }: LoadingProps) {
   return (
-    <div className="loading" role="status">
-      <span className="loading__spinner" aria-hidden="true" />
+    <div className="flex items-center gap-2.5 py-3 text-muted" role="status">
+      <span
+        className="size-4 animate-spin rounded-full border-2 border-line border-t-accent motion-reduce:animate-none"
+        aria-hidden="true"
+      />
       <span>{label}</span>
     </div>
   )

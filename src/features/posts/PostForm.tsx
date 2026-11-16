@@ -1,11 +1,13 @@
 import { useRef, useState, type FormEvent } from 'react'
+import { Button } from '../../shared/ui/Button.tsx'
+import { fieldControl } from '../../shared/ui/fieldControl.ts'
 import { hasErrors, validatePost, type PostFormErrors, type PostFormValues } from './validatePost.ts'
 
 const EMPTY_VALUES: PostFormValues = { title: '', body: '' }
 
 function RequiredMark() {
   return (
-    <span className="required-mark" aria-hidden="true">
+    <span className="font-semibold text-danger" aria-hidden="true">
       *
     </span>
   )
@@ -56,14 +58,21 @@ export function PostForm({ onSubmit, isSubmitting = false }: PostFormProps) {
   }
 
   return (
-    <form className="post-form" aria-labelledby="post-form-heading" noValidate onSubmit={handleSubmit}>
-      <h3 id="post-form-heading">New post</h3>
+    <form
+      className="grid gap-3.5 rounded-lg border border-line bg-surface p-4"
+      aria-labelledby="post-form-heading"
+      noValidate
+      onSubmit={handleSubmit}
+    >
+      <h3 id="post-form-heading" className="text-lg font-semibold">
+        New post
+      </h3>
       {/* The visual asterisk is aria-hidden; `required` conveys it to assistive tech. */}
-      <p className="form-hint">
+      <p className="text-sm text-muted">
         Fields marked with <RequiredMark /> are required.
       </p>
 
-      <div className="form-field">
+      <div className="flex flex-col gap-1">
         <label htmlFor="post-title">
           Title <RequiredMark />
         </label>
@@ -72,19 +81,20 @@ export function PostForm({ onSubmit, isSubmitting = false }: PostFormProps) {
           id="post-title"
           name="title"
           required
+          className={fieldControl}
           value={values.title}
           onChange={(event) => handleChange('title', event.target.value)}
           aria-invalid={errors.title ? true : undefined}
           aria-describedby={errors.title ? 'post-title-error' : undefined}
         />
         {errors.title && (
-          <p id="post-title-error" className="form-field__error">
+          <p id="post-title-error" className="text-sm text-danger">
             {errors.title}
           </p>
         )}
       </div>
 
-      <div className="form-field">
+      <div className="flex flex-col gap-1">
         <label htmlFor="post-body">
           Text <RequiredMark />
         </label>
@@ -94,21 +104,22 @@ export function PostForm({ onSubmit, isSubmitting = false }: PostFormProps) {
           name="body"
           rows={4}
           required
+          className={`${fieldControl} resize-y`}
           value={values.body}
           onChange={(event) => handleChange('body', event.target.value)}
           aria-invalid={errors.body ? true : undefined}
           aria-describedby={errors.body ? 'post-body-error' : undefined}
         />
         {errors.body && (
-          <p id="post-body-error" className="form-field__error">
+          <p id="post-body-error" className="text-sm text-danger">
             {errors.body}
           </p>
         )}
       </div>
 
-      <button type="submit" disabled={isSubmitting}>
+      <Button type="submit" className="justify-self-start" disabled={isSubmitting}>
         {isSubmitting ? 'Publishing…' : 'Publish post'}
-      </button>
+      </Button>
     </form>
   )
 }

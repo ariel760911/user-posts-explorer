@@ -33,8 +33,10 @@ function UserPosts({ userId }: { userId: number }) {
   if (users && !user) return <NotFound />
 
   return (
-    <section className="user-posts" aria-labelledby="posts-heading">
-      <h2 id="posts-heading">{user ? `Posts by ${user.name}` : 'Posts'}</h2>
+    <section className="flex flex-col gap-5" aria-labelledby="posts-heading">
+      <h2 id="posts-heading" className="text-xl font-semibold">
+        {user ? `Posts by ${user.name}` : 'Posts'}
+      </h2>
       {isPending && <Loading label="Loading posts…" />}
       {isError && (
         <ErrorMessage
@@ -55,7 +57,7 @@ function UserPosts({ userId }: { userId: number }) {
             <ErrorMessage message="We couldn't publish the post. Your text is kept, please try again." />
           )}
           {createPost.isSuccess && (
-            <p className="success-message" role="status">
+            <p className="text-success" role="status">
               Post published.
             </p>
           )}
