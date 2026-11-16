@@ -131,7 +131,7 @@ describe('New post modal', () => {
     expect(await screen.findByRole('status')).toHaveTextContent('Post published.')
     expect(newPostDialog()).not.toBeInTheDocument()
     expect(newPostButton()).toHaveFocus()
-    expect(postTitles()[0]).toBe('Fresh postNot saved on server')
+    expect(postTitles()[0]).toBe('Fresh post')
   })
 })
 
@@ -181,10 +181,18 @@ describe('Create post', () => {
 
     await screen.findByText('My second post')
     expect(postTitles()).toEqual([
-      'My second postNot saved on server',
-      'My first postNot saved on server',
+      'My second post',
+      'My first post',
       'First post by Leanne',
       'Second post by Leanne',
+    ])
+    // Only locally created posts carry the badge.
+    const items = within(screen.getByRole('list', { name: 'Posts' })).getAllByRole('listitem')
+    expect(items.map((item) => within(item).queryByText('Not saved on server') !== null)).toEqual([
+      true,
+      true,
+      false,
+      false,
     ])
     expect(consoleError).not.toHaveBeenCalled()
   })
@@ -200,6 +208,6 @@ describe('Create post', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent("We couldn't publish the post")
     expect(newPostButton()).toHaveAttribute('aria-expanded', 'true')
     expect(titleField()).toHaveValue('Will fail')
-    expect(postTitles()).not.toContain('Will failNot saved on server')
+    expect(postTitles()).not.toContain('Will fail')
   })
 })

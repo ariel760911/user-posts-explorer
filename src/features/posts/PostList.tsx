@@ -14,17 +14,19 @@ export function PostList({ posts }: PostListProps) {
       {posts.map((post) => (
         <li key={post.id} className="rounded-lg border border-line px-4 py-3.5">
           <article>
-            <h3 className="mb-1.5 font-semibold">
-              {post.title}
+            {/* The badge sits next to the heading, not inside it, so the
+                heading's accessible name is just the post title. */}
+            <div className="mb-1.5 flex flex-wrap items-center gap-x-2 gap-y-1">
+              <h3 className="font-semibold">{post.title}</h3>
               {post.isLocal && (
                 <span
-                  className="ml-2 inline-block rounded-full border border-line bg-white px-2 py-px align-middle text-xs font-medium text-muted"
+                  className="inline-block rounded-full border border-line bg-white px-2 py-px text-xs font-medium text-muted"
                   title="The demo API does not save posts; it is kept only in this session."
                 >
                   Not saved on server
                 </span>
               )}
-            </h3>
+            </div>
             <p className="text-muted">{post.body}</p>
           </article>
         </li>
