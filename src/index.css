@@ -176,6 +176,44 @@ textarea:focus-visible {
   font-weight: 600;
 }
 
+.post-form {
+  display: grid;
+  gap: 0.9rem;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--color-surface);
+}
+
+.post-form h3 {
+  margin: 0;
+}
+
+.post-form button {
+  justify-self: start;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.form-field textarea {
+  resize: vertical;
+}
+
+.form-field [aria-invalid='true'] {
+  border-color: var(--color-danger);
+}
+
+.form-field__error {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--color-danger);
+}
+
 .post-list {
   list-style: none;
   margin: 0;
