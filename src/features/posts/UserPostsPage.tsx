@@ -35,7 +35,6 @@ function UserPosts({ userId }: { userId: number }) {
   const { data: posts, isPending, isError, isFetching, refetch } = useUserPosts(userId)
   const createPost = useCreatePost(userId)
   const [isFormOpen, setIsFormOpen] = useState(false)
-  const openerRef = useRef<HTMLButtonElement>(null)
   const headingRef = useRef<HTMLHeadingElement>(null)
 
   // Entering a user's detail moves focus to its heading, so screen reader and
@@ -54,10 +53,9 @@ function UserPosts({ userId }: { userId: number }) {
     setIsFormOpen(true)
   }
 
+  // Modal restores focus to "New post" once the dialog is really closed.
   function closeForm() {
     setIsFormOpen(false)
-    // Return focus to the control that opened the modal.
-    openerRef.current?.focus()
   }
 
   async function handleSubmit(values: PostFormValues) {
@@ -82,7 +80,6 @@ function UserPosts({ userId }: { userId: number }) {
         </h2>
         {posts && (
           <Button
-            ref={openerRef}
             onClick={openForm}
             aria-haspopup="dialog"
             aria-expanded={isFormOpen}

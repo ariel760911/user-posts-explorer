@@ -9,13 +9,24 @@ Object.defineProperty(window, 'scrollTo', { value: vi.fn(), writable: true })
 
 // jsdom ships <dialog> without showModal/close. Minimal polyfill: toggles the
 // `open` attribute (closed dialogs are display:none in jsdom) and fires "close".
-// Browser-only behaviour (focus trap, inert background) is not emulated.
 HTMLDialogElement.prototype.showModal = function showModal(this: HTMLDialogElement) {
   this.setAttribute('open', '')
+  this.dataset.modal = ''
 }
 HTMLDialogElement.prototype.close = function close(this: HTMLDialogElement) {
+  if (!this.open) return
   this.removeAttribute('open')
+  delete this.dataset.modal
   this.dispatchEvent(new Event('close'))
+}
+
+// Emulate the inert background of a modal dialog: like a real browser,
+// focusing an element outside an open modal does nothing.
+const nativeFocus = HTMLElement.prototype.focus
+HTMLElement.prototype.focus = function focus(this: HTMLElement, options?: FocusOptions) {
+  const openModal = document.querySelector('dialog[data-modal]')
+  if (openModal && !openModal.contains(this)) return
+  nativeFocus.call(this, options)
 }
 
 beforeAll(() => server.listen({ onUnhandledRequest: 'error' }))

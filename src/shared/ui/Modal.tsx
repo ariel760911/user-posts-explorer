@@ -5,7 +5,7 @@ interface ModalProps {
   title: string
   titleId: string
   open: boolean
-  /** Called for every user-initiated close: Esc, the × button or a Cancel action. */
+  /** Called for every user-initiated close: Esc, the × button, the backdrop or Cancel. */
   onClose: () => void
   children: ReactNode
 }
@@ -16,12 +16,15 @@ interface ModalProps {
  */
 export function Modal({ id, title, titleId, open, onClose, children }: ModalProps) {
   const dialogRef = useRef<HTMLDialogElement>(null)
+  const returnFocusRef = useRef<HTMLElement | null>(null)
+  const pointerDownOnBackdropRef = useRef(false)
 
   useEffect(() => {
     const dialog = dialogRef.current
     if (!dialog) return
 
     if (open && !dialog.open) {
+      returnFocusRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null
       dialog.showModal()
       // Start on the first field rather than on the × button.
       dialog.querySelector<HTMLElement>('input, textarea, select')?.focus()
@@ -39,6 +42,23 @@ export function Modal({ id, title, titleId, open, onClose, children }: ModalProp
       onCancel={(event) => {
         event.preventDefault()
         onClose()
+      }}
+      // "close" fires after the dialog is closed and no longer inert, so focus
+      // can be restored here. It also syncs state when the browser closes the
+      // dialog on its own (e.g. a repeated Esc that skips a cancelable "cancel").
+      onClose={() => {
+        returnFocusRef.current?.focus()
+        if (open) onClose()
+      }}
+      // Clicks on the backdrop target the <dialog> itself (content fills it).
+      // Requiring pointerdown there too avoids closing when a text selection
+      // started inside the form ends over the backdrop.
+      onPointerDown={(event) => {
+        pointerDownOnBackdropRef.current = event.target === event.currentTarget
+      }}
+      onClick={(event) => {
+        if (pointerDownOnBackdropRef.current && event.target === event.currentTarget) onClose()
+        pointerDownOnBackdropRef.current = false
       }}
       className="m-auto w-[min(100%-2rem,36rem)] rounded-lg border border-line bg-white p-0 text-fg shadow-xl backdrop:bg-black/40"
     >

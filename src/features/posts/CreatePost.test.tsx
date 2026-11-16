@@ -1,4 +1,4 @@
-import { fireEvent, screen, within } from '@testing-library/react'
+import { act, fireEvent, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { http, HttpResponse } from 'msw'
 import { afterEach, describe, expect, it, vi } from 'vitest'
@@ -87,6 +87,37 @@ describe('New post modal', () => {
 
     await user.click(newPostButton())
     expect(titleField()).toHaveValue('Half-written idea')
+  })
+
+  it('closes when the backdrop is clicked', async () => {
+    const { user } = await openNewPostForm()
+
+    // Backdrop clicks target the <dialog> element itself.
+    await user.click(newPostDialog() as HTMLElement)
+
+    expect(newPostDialog()).not.toBeInTheDocument()
+    expect(newPostButton()).toHaveFocus()
+  })
+
+  it('stays open when a text selection that started inside ends on the backdrop', async () => {
+    await openNewPostForm()
+    const dialog = newPostDialog() as HTMLElement
+
+    fireEvent.pointerDown(titleField())
+    fireEvent.click(dialog)
+
+    expect(newPostDialog()).toBeVisible()
+  })
+
+  it('stays usable when the browser closes the dialog on its own', async () => {
+    const { user } = await openNewPostForm()
+
+    // e.g. a repeated Esc that the browser no longer lets us cancel.
+    act(() => (newPostDialog() as HTMLDialogElement).close())
+
+    expect(newPostButton()).toHaveAttribute('aria-expanded', 'false')
+    await user.click(newPostButton())
+    expect(newPostDialog()).toBeVisible()
   })
 
   it('closes after publishing and shows the new post on top', async () => {
