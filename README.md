@@ -82,7 +82,7 @@ Las dependencias van en una sola dirección: `app → features → shared/api`. 
 
 - **Tests end-to-end con Playwright** en viewports de escritorio y móvil. El modal como hoja inferior, el bloqueo del scroll, el retorno real del foco y los bordes del backdrop hoy solo se validan con la simulación de jsdom o no tienen cobertura.
 - **Integración continua con GitHub Actions** que ejecute typecheck, lint, tests y build en cada pull request.
-- **Chequeos de accesibilidad automatizados con axe**. Habrían detectado el doble etiquetado del modal (el diálogo y el formulario se nombran con el mismo título) y ayudarían a cuidar las regiones `aria-live`.
+- **Chequeos de accesibilidad automatizados con axe**. Habrían detectado antes el doble etiquetado del modal (el diálogo y el formulario se nombraban con el mismo título; ya corregido, el formulario ya no se nombra) y ayudarían a cuidar las regiones `aria-live`.
 
 ### Prioridad 2: robustez
 

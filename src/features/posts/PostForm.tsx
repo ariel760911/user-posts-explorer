@@ -19,11 +19,9 @@ interface PostFormProps {
   /** Renders a Cancel button when provided. */
   onCancel?: () => void
   isSubmitting?: boolean
-  /** Id of the element that names the form (e.g. the modal title). */
-  labelledBy: string
 }
 
-export function PostForm({ onSubmit, onCancel, isSubmitting = false, labelledBy }: PostFormProps) {
+export function PostForm({ onSubmit, onCancel, isSubmitting = false }: PostFormProps) {
   const [values, setValues] = useState<PostFormValues>(EMPTY_VALUES)
   const [errors, setErrors] = useState<PostFormErrors>({})
   // Errors show after the first submit attempt, then update while typing.
@@ -62,7 +60,9 @@ export function PostForm({ onSubmit, onCancel, isSubmitting = false, labelledBy 
   }
 
   return (
-    <form className="grid gap-3.5" aria-labelledby={labelledBy} noValidate onSubmit={handleSubmit}>
+    // Unnamed on purpose: the enclosing dialog already carries the "New post"
+    // name; naming the form too made screen readers announce it twice.
+    <form className="grid gap-3.5" noValidate onSubmit={handleSubmit}>
       {/* The visual asterisk is aria-hidden; `required` conveys it to assistive tech. */}
       <p className="text-sm text-muted">
         Fields marked with <RequiredMark /> are required.

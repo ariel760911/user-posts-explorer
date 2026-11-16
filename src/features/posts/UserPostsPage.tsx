@@ -126,7 +126,6 @@ function UserPosts({ userId }: { userId: number }) {
                 <ErrorMessage message="We couldn't publish the post. Your text is kept, please try again." />
               )}
               <PostForm
-                labelledBy={NEW_POST_TITLE_ID}
                 onSubmit={handleSubmit}
                 onCancel={closeForm}
                 isSubmitting={createPost.isPending}

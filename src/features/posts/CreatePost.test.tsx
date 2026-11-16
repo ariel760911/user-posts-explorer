@@ -66,7 +66,9 @@ describe('New post modal', () => {
     expect(newPostButton()).toHaveAttribute('aria-expanded', 'true')
     expect(newPostDialog()).toBeVisible()
     expect(newPostDialog()).toHaveAttribute('id', newPostButton().getAttribute('aria-controls'))
-    expect(within(newPostDialog() as HTMLElement).getByRole('form', { name: 'New post' })).toBeVisible()
+    expect(within(newPostDialog() as HTMLElement).getByRole('textbox', { name: 'Title' })).toBeVisible()
+    // Named once: the dialog carries "New post", the form inside is not named again.
+    expect(screen.queryByRole('form', { name: 'New post' })).not.toBeInTheDocument()
     expect(titleField()).toHaveFocus()
   })
 
